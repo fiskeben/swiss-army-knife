@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"io"
-	"github.com/spf13/cobra"
+
 	"github.com/majestic-fox/swiss-army-knife/pkg/aws"
-	"github.com/atotto/clipboard"
+	"github.com/spf13/cobra"
 )
 
 type awsSetCredentialsCmd struct {
@@ -30,11 +30,7 @@ func newAwsSetCredentialsCmd(out io.Writer) *cobra.Command {
 }
 
 func (a *awsSetCredentialsCmd) run() error {
-	s, err := aws.SetCredentials(a.profile)
-	if err != nil && !settings.Quiet {
-		return err
-	}
-	err = clipboard.WriteAll(s)
+	err := aws.SetCredentials(a.profile)
 	if err != nil && !settings.Quiet {
 		return err
 	}

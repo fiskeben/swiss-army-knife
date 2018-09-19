@@ -1,12 +1,13 @@
 package aws
 
 import (
-	"os"
-	"gopkg.in/AlecAivazis/survey.v1"
-	"github.com/go-ini/ini"
 	"fmt"
+	"os"
 	"path/filepath"
+
+	"github.com/go-ini/ini"
 	"github.com/gosuri/uitable"
+	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 const (
@@ -35,6 +36,7 @@ func promptUserAWSProfile(current string, opts []string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return answers.AWSProfile, nil
 }
 
@@ -44,11 +46,16 @@ type credentials struct {
 	SecretAccessKeyID string
 }
 
-func (c credentials) envString(justProfile bool) string {
+func (c credentials) envString(justProfile bool) map[string]string {
 	if justProfile {
-		return fmt.Sprintf("unset %v; unset %v; export %v=%v", envAccessKey, envSecretKey, envProfile, c.Profile)
+		return map[string]string{
+			"AWS_PROFILE": c.Profile,
+		}
 	}
-	return fmt.Sprintf("unset %v; export %v=%v; export %v=%v", envProfile, envAccessKey, c.AccessKeyID, envSecretKey, c.SecretAccessKeyID)
+	return map[string]string{
+		"AWS_ACCESS_KEY_ID":     c.AccessKeyID,
+		"AWS_SECRET_ACCESS_KEY": c.SecretAccessKeyID,
+	}
 }
 
 func readAWSCredentials() ([]credentials, error) {
@@ -99,7 +106,6 @@ func formatCredsList(creds []credentials) string {
 		table.AddRow("CURRENT", "PROFILE", "ACCESS_KEY_ID")
 	}
 	table.AddRow("PROFILE", "ACCESS_KEY_ID")
-
 
 	for _, v := range creds {
 		if current != "" {

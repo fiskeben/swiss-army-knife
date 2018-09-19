@@ -10,24 +10,24 @@ func ListCredentials() (string, error) {
 	return formatCredsList(c), nil
 }
 
-func SetCredentials(justProfile bool) (string, error) {
+func SetCredentials(justProfile bool) error {
 	c, err := readAWSCredentials()
 	if err != nil {
-		return "", fmt.Errorf("failed to read credentials file: %v", err)
+		return fmt.Errorf("failed to read credentials file: %v", err)
 	}
 
 	newProfile, err := promptUserAWSProfile(getCurrentProfile(c), getProfileNames(c))
 	if err != nil {
-		return "", fmt.Errorf("something went wrong when prompting the user: %v", err)
+		return fmt.Errorf("something went wrong when prompting the user: %v", err)
 	}
 
 	for _, v := range c {
 		if v.Profile == newProfile {
-			return v.envString(justProfile), nil
+			return openShell(v.envString(justProfile))
 		}
 	}
 
-	return "", fmt.Errorf("🤭 something went wrong while setting the credentials")
+	return fmt.Errorf("🤭 something went wrong while setting the credentials")
 }
 
 func GetCurrentCredentials() (string, error) {
